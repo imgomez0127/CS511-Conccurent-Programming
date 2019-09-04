@@ -1,0 +1,22 @@
+Q3.
+part 1 run thread p then run thread q
+No it is not possible because for both to be 1 the load of x or y would have to take place before either got stored from the assignment however this is not possible because assignments are atomic therefore one of the loads will always have a 1. However if assignment was not atomic it would be possible because both loads could be performed before store and therefore it would cause both variables to be 1
+Q4.
+P4 Q4 
+P5 Q5 
+P5 Q4
+P5 Q5
+P5 Q4
+P5 Q5
+P5 Q4
+P5 Q5
+P5 Q4
+P5 Q5
+P4 -
+P5 -
+P4 -
+P5 -
+P4 -
+P5 -
+P4 -
+P5 -
