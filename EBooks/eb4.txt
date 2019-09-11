@@ -1,0 +1,62 @@
+Code written in hydra lang
+Q1.
+part a)
+
+mutex = new Semaphore(0);
+
+thread Q:{
+    print("A");
+    mutex.release();
+    print("B");
+    print("C");
+}
+
+thread P:{
+    print("E");
+    mutex.acquire();
+    print("F");
+    print("G");
+    
+}
+
+part b)
+
+mutex = new Semaphore(0);
+
+thread Q:{
+    print("A");
+    print("B");
+    mutex.acquire();
+    print("C");
+} 
+
+thread P:{
+    print("E");
+    print("F");
+    mutex.release();
+    print("G");
+}
+
+these work because permission is incremented and this allows the lock to grab one from the permission counter 
+thread 
+
+Q2.
+
+part  b)
+
+lock = new Semaphore(1);
+
+thread P:{
+    lock.acquire()
+    print("A");
+    print("C");
+    lock.release()
+}
+
+thread Q:{
+    print("R");
+    lock.release()
+    lock.acquire()
+    print("E");
+    print("S");
+}

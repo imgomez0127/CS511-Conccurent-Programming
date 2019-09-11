@@ -1,0 +1,7 @@
+MEP
+Leslie Lamport: Turing lecture: The computer science of concurrency: the early years. Commun. ACM 58(6): 71-76 (2015)
+Assumptions for MEP
+assume theres no shared between critical and non critical section nor exit/entry
+critical section always terminates
+scheduler is fair
+
