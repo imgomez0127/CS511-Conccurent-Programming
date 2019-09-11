@@ -16,8 +16,11 @@ public class TextSwap {
     }
 
     private static Interval[] getIntervals(int numChunks, int chunkSize) {
-        // TODO: Implement me!
-        return null;
+        Interval[] intervals = new Interval[numChunks];
+        for(int i = 0; i < numChunks*chunkSize; i += numChunks){
+            intervals[i] = new Interval(i,i+numChunks);
+        } 
+        return intervals;
     }
 
     private static List<Character> getLabels(int numChunks) {
