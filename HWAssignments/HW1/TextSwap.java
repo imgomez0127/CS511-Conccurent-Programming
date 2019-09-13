@@ -16,7 +16,6 @@ public class TextSwap {
     }
 
     private static Interval[] getIntervals(int numChunks, int chunkSize) {
-        //IF U LOOK AT THIS GIVE ME A FOLLOW I CAN SEE THE GIT TRAFFIC
         Interval[] intervals = new Interval[numChunks];
         for(int i = 0; i < numChunks*chunkSize; i += chunkSize){
             intervals[i/chunkSize] = new Interval(i,i+chunkSize);
@@ -39,7 +38,6 @@ public class TextSwap {
        return intervals[label.charValue() - 'a'];
     }
     private static char[] runSwapper(String content, int chunkSize, int numChunks) {
-        //IF U LOOK AT THIS GIVE ME A FOLLOW I CAN SEE THE GIT TRAFFIC
         List<Character> labels = getLabels(numChunks);
         Interval[] intervals = getIntervals(numChunks, chunkSize);
         Thread[] swapperThreads = new Thread[numChunks];
