@@ -20,7 +20,6 @@ public class TextSwap {
         Interval[] intervals = new Interval[numChunks];
         for(int i = 0; i < numChunks*chunkSize; i += chunkSize){
             intervals[i/chunkSize] = new Interval(i,i+chunkSize);
-            System.out.println(intervals[i/chunkSize]);
         } 
         return intervals;
     }
@@ -34,7 +33,6 @@ public class TextSwap {
             labels.add(scanner.next().charAt(0));
         }
         scanner.close();
-        // System.out.println(labels);
         return labels;
     }
     public static Interval getContentInterval(Interval[] intervals, Character label){
@@ -46,7 +44,6 @@ public class TextSwap {
         Interval[] intervals = getIntervals(numChunks, chunkSize);
         Thread[] swapperThreads = new Thread[numChunks];
         char[] fileOutput = new char[chunkSize*numChunks];
-        System.out.println(content);
         for(int i = 0; i < numChunks; i++){
             int offset = i * chunkSize;
             Interval contentInterval = getContentInterval(intervals,labels.get(i));
