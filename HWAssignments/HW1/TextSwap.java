@@ -3,7 +3,7 @@ import java.util.*;
 
 public class TextSwap {
 
-    static char[] fileOutput;
+    static char[] outputBuffer;
 
     private static String readFile(String filename) throws Exception {
         String line;
@@ -49,7 +49,7 @@ public class TextSwap {
             Interval contentInterval = getContentInterval(intervals,
                 labels.get(i)
             );
-            swapperThreads[i] = new Thread(new Swapper(contentInterval,content,fileOutput,
+            swapperThreads[i] = new Thread(new Swapper(contentInterval,content,outputBuffer,
                 offset));
         }
         return swapperThreads;
@@ -74,11 +74,11 @@ public class TextSwap {
     private static char[] runSwapper(String content, int chunkSize, int numChunks) {
         List<Character> labels = getLabels(numChunks);
         Interval[] intervals = getIntervals(numChunks, chunkSize);
-        fileOutput = new char[numChunks*chunkSize];
+        outputBuffer = new char[numChunks*chunkSize];
         Thread[] swapperThreads = createSwapperThreads(content,labels,intervals);
         startThreads(swapperThreads);
         joinThreads(swapperThreads);
-        return fileOutput;
+        return outputBuffer;
     }
 
     private static void writeToFile(String contents, int chunkSize, int numChunks) throws Exception {
