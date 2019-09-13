@@ -3,6 +3,8 @@ import java.util.*;
 
 public class TextSwap {
 
+    static char[] fileOutput;
+
     private static String readFile(String filename) throws Exception {
         String line;
         StringBuilder buffer = new StringBuilder();
@@ -34,27 +36,48 @@ public class TextSwap {
         scanner.close();
         return labels;
     }
-    public static Interval getContentInterval(Interval[] intervals, Character label){
+
+    private static Interval getContentInterval(Interval[] intervals, Character label){
        return intervals[label.charValue() - 'a'];
     }
+
+    private static Thread[] createSwapperThreads(String content, List<Character> labels, Interval[] intervals){
+        Thread[] swapperThreads = new Thread[intervals.length];
+        int intervalDistance = intervals[0].distance();
+        for(int i = 0; i < intervals.length; i++){
+            int offset = i * intervalDistance;
+            Interval contentInterval = getContentInterval(intervals,
+                labels.get(i)
+            );
+            swapperThreads[i] = new Thread(new Swapper(contentInterval,content,fileOutput,
+                offset));
+        }
+        return swapperThreads;
+    }
+
+    private static void startThreads(Thread[] threads){
+        for(Thread thread : threads){
+            thread.start();
+        }
+    }
+    
+    private static void joinThreads(Thread[] threads){
+        for(Thread thread : threads){
+            try{
+                thread.join();
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
     private static char[] runSwapper(String content, int chunkSize, int numChunks) {
         List<Character> labels = getLabels(numChunks);
         Interval[] intervals = getIntervals(numChunks, chunkSize);
-        Thread[] swapperThreads = new Thread[numChunks];
-        char[] fileOutput = new char[chunkSize*numChunks];
-        for(int i = 0; i < numChunks; i++){
-            int offset = i * chunkSize;
-            Interval contentInterval = getContentInterval(intervals,labels.get(i));
-            swapperThreads[i] = new Thread(new Swapper(contentInterval,content,fileOutput,offset));
-            swapperThreads[i].start();
-        }
-        for(int i = 0; i < numChunks; i++){
-            try{
-                swapperThreads[i].join();
-            } catch (InterruptedException e) {
-               e.printStackTrace();
-            }
-        }
+        fileOutput = new char[numChunks*chunkSize];
+        Thread[] swapperThreads = createSwapperThreads(content,labels,intervals);
+        startThreads(swapperThreads);
+        joinThreads(swapperThreads);
         return fileOutput;
     }
 
