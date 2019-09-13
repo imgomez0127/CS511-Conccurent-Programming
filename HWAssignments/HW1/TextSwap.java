@@ -70,7 +70,16 @@ public class TextSwap {
             }
         }
     }
-
+    /**
+    * Runs threads which swaps around the content of a file into an output buffer.
+    * The swapping is accomplished by splitting the the file into an equal amount
+    * of chunks(sections) and then each thread maps a chunk from the input file
+    * to the corresponding chunk in the output buffer
+    * @param content A String which represents the content of the input file
+    * @param chunkSize An int which defines the length of the chunk
+    * @param numChunks An int which defines the amount of chunks the file is split into
+    * @return outputBuffer A character array which will be written into the output file
+    */
     private static char[] runSwapper(String content, int chunkSize, int numChunks) {
         List<Character> labels = getLabels(numChunks);
         Interval[] intervals = getIntervals(numChunks, chunkSize);
