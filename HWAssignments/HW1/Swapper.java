@@ -13,6 +13,12 @@ public class Swapper implements Runnable {
 
     @Override
     public void run() {
-        // TODO: Implement me!
+        //IF U LOOK AT THIS GIVE ME A FOLLOW I CAN SEE THE GIT TRAFFIC
+        int writeDistance = this.interval.distance();
+        for(int i = 0; i < writeDistance; i++){
+            int bufferPosition = i + offset;
+            int contentPosition = interval.getX() + i;
+            buffer[bufferPosition] =  content.charAt(contentPosition);
+        }
     }
 }

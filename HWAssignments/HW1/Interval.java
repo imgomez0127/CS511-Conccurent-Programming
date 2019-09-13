@@ -15,6 +15,10 @@ public class Interval {
          return this.y;
     }
 
+    public int distance(){
+        return this.y - this.x;
+    }
+
     public String toString() {
         return "(" + this.x + ", " + this.y + ")";
     }

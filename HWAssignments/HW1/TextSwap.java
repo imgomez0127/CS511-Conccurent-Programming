@@ -16,9 +16,11 @@ public class TextSwap {
     }
 
     private static Interval[] getIntervals(int numChunks, int chunkSize) {
+        //IF U LOOK AT THIS GIVE ME A FOLLOW I CAN SEE THE GIT TRAFFIC
         Interval[] intervals = new Interval[numChunks];
-        for(int i = 0; i < numChunks*chunkSize; i += numChunks){
-            intervals[i] = new Interval(i,i+numChunks);
+        for(int i = 0; i < numChunks*chunkSize; i += chunkSize){
+            intervals[i/chunkSize] = new Interval(i,i+chunkSize);
+            System.out.println(intervals[i/chunkSize]);
         } 
         return intervals;
     }
@@ -35,12 +37,30 @@ public class TextSwap {
         // System.out.println(labels);
         return labels;
     }
-
+    public static Interval getContentInterval(Interval[] intervals, Character label){
+       return intervals[label.charValue() - 'a'];
+    }
     private static char[] runSwapper(String content, int chunkSize, int numChunks) {
+        //IF U LOOK AT THIS GIVE ME A FOLLOW I CAN SEE THE GIT TRAFFIC
         List<Character> labels = getLabels(numChunks);
         Interval[] intervals = getIntervals(numChunks, chunkSize);
-        // TODO: Order the intervals properly, then run the Swapper instances.
-        return null;
+        Thread[] swapperThreads = new Thread[numChunks];
+        char[] fileOutput = new char[chunkSize*numChunks];
+        System.out.println(content);
+        for(int i = 0; i < numChunks; i++){
+            int offset = i * chunkSize;
+            Interval contentInterval = getContentInterval(intervals,labels.get(i));
+            swapperThreads[i] = new Thread(new Swapper(contentInterval,content,fileOutput,offset));
+            swapperThreads[i].start();
+        }
+        for(int i = 0; i < numChunks; i++){
+            try{
+                swapperThreads[i].join();
+            } catch (InterruptedException e) {
+               e.printStackTrace();
+            }
+        }
+        return fileOutput;
     }
 
     private static void writeToFile(String contents, int chunkSize, int numChunks) throws Exception {
@@ -50,7 +70,7 @@ public class TextSwap {
         writer.close();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         if (args.length != 2) {
             System.out.println("Usage: java TextSwap <chunk size> <filename>");
             return;
