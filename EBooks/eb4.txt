@@ -60,3 +60,33 @@ thread Q:{
     print("E");
     print("S");
 }
+
+Q3.
+Semaphore test1 = new Semaphore(0);
+Semaphore test2 = new Semaphore(0);
+Semaphore test3 = new Semaphore(0);
+thread P:{
+	print("R");
+	test2.release();
+	test1.acquire();
+	print("OK");
+
+	
+}
+thread Q:{
+	test2.acquire();
+	print("I");
+	test3.release();
+	test1.acquire();
+	print("OK");
+
+}
+
+
+thread R:{
+	test3.acquire();
+	print("O");
+	test1.release();
+	test1.release();
+	print("OK");
+}

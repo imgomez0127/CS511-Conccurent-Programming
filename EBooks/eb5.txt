@@ -1,0 +1,124 @@
+Q1.
+Semaphore man_can_go_in = Semaphore(0);
+Semaphore grab_shit = Semaphore(1);
+bool itGotLate = false;
+thread Man: {
+    grab_shit.acquire();
+        if !itGotLate{
+	        man_can_go_in.acquire();
+	        man_can_go_in.acquire();
+        }
+    grab_shit.release();
+}
+
+thread Woman: {
+	man_can_go_in.release();
+}
+
+itGotLate(){
+    itGotLate = true;
+    ticket.release();
+    ticket.release(); 
+    // could just also be a while true release and dont edit man
+}
+
+Q2.
+Semaphore mutexM = new Semaphore(1);
+Semaphore mutexW = new Semaphore(1);
+thread Man:{
+    mutexM.acquire();
+    men++;
+    if(men == 1){
+        mutexW.acquire();
+    }
+    mutexM.release()
+
+    mutexM.acquire()
+    men--;    
+    if(men == 0){
+        mutexW.release();
+    }
+    mutexM.release();
+    
+}
+thread Woman:{
+    same as man but replace all mutexM with mutexW and vice versa 
+}
+
+Q3.
+//Assuming capacity N = 5 
+Semaphore able_to_board = new Semaphore(0);
+Semaphore able_to_depart = new Semaphore(0);
+Semaphore able_to_unboard = new Semaphore(0);
+Semaphore able_to_allow_boarding = new Semaphore(0);
+thread Boat:{
+    while(true){
+        //allow 5 ppl to board
+        able_to_board.release();
+        able_to_board.release();
+        able_to_board.release();
+        able_to_board.release();
+        able_to_board.release();
+        //wait for all 5 to board
+        able_to_depart.acquire(); 
+        able_to_depart.acquire();
+        able_to_depart.acquire();
+        able_to_depart.acquire();
+        able_to_depart.acquire();
+        //allow 5 ppl to unboard
+        able_to_unboard.release();
+        able_to_unboard.release();
+        able_to_unboard.release();
+        able_to_unboard.release();
+        able_to_unboard.release();
+        //wait for all 5 to board
+        able_to_allow_boarding.acquire(); 
+        able_to_allow_boarding.acquire(); 
+        able_to_allow_boarding.acquire(); 
+        able_to_allow_boarding.acquire(); 
+        able_to_allow_boarding.acquire(); 
+
+    }
+}
+//assume multiple passengers are instantiated
+thread Passenger:{
+    while(true){
+        able_to_board.acquire();
+        able_to_depart.release();
+        able_to_unboard.acquire();
+        able_to_allow_boarding.release();
+    }
+} 
+
+Q8.
+part A.
+Semaphore disableOppositeMovement = new Semaphore(1);
+Semaphore mutexForward = new Semaphore(1);
+Semaphore mutexBackward = new Semaphore(1);
+int amountGoingForward = 0;
+int amountGoingBackward = 0;
+thread Vehicle(myEndpoint):{
+    if(myEndpoint == 0){
+        mutexForward.acquire();
+        amountGoingForward++; 
+        if(amountGoingForward == 1){
+            disableOppositeMovement.acquire();
+        }
+        mutexForward.release();
+        //Drive bitch drive
+        mutexForward.acquire();
+        amountGoingForward--;
+        if(amountGoingForward == 0){
+            disableOppositeMovement.release();
+        }
+        mutexForward.release(); 
+    }
+    else{
+        //do the same as myEndpoint == 0 but change all forwards with backwards and vice versa
+    }
+}
+
+Part B:
+add another mutex to allow only 3 cars to go into the driving section
+Part C:
+No
