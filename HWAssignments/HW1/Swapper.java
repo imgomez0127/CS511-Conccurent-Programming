@@ -11,13 +11,17 @@ public class Swapper implements Runnable {
         this.buffer = buffer;
     }
 
+    private void copyContent(int i){
+        int bufferPosition = i + offset;
+        int contentPosition = interval.getX() + i;
+        buffer[bufferPosition] =  content.charAt(contentPosition);
+    }
+
     @Override
     public void run() {
         int writeDistance = this.interval.distance();
         for(int i = 0; i < writeDistance; i++){
-            int bufferPosition = i + offset;
-            int contentPosition = interval.getX() + i;
-            buffer[bufferPosition] =  content.charAt(contentPosition);
+            this.copyContent(i);
         }
     }
 }

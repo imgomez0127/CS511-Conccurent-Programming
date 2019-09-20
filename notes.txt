@@ -5,3 +5,39 @@ assume theres no shared between critical and non critical section nor exit/entry
 critical section always terminates
 scheduler is fair
 
+Coding tips:
+Remember that when ur coding a semaphore you can make the permission greater than the set value
+
+You can use semaphores .release() on a 0 perm semaphore to ensure that something acquires first before the release this works because it either increments the permission counter or it passes the baton
+
+It is syntactically correct to utilize a int as a param to release or acquire to perform it multiple times
+
+
+readers/writers 
+
+if a reader is in then disable the writer
+if a writer is in the disable the readers
+the last writer/reader that is in enables the next
+This is a trivial unfair solution some ways to introduce fairness is wrapping the protocol in a mutex which ensures that the readers will get the next usage of entrance
+Or use a queue like structure to make sure readers get next access
+small example
+
+mutexreader
+mutexwriter
+
+thread writer:{
+    //try to disable reader atomically
+    mutexwriter.acquire()
+    if wamt == 0
+        resource.acquire()
+    wamt++
+    muextW.release()
+    //stuff
+    mutexwriter.acquire()
+    wamt--
+    if wamt == 0:
+        resource.acquire()
+    mutexwriter.release()
+}
+
+do the same thing for reader but use mutexreader
