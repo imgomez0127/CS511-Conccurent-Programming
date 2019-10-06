@@ -59,6 +59,20 @@ public class Exercise{
             }
         }
     }
+    private void releaseWeights(
+        HashMap<WeightPlateSize,Semaphore> availableWeights
+    ){
+        for(WeightPlateSize weightSize : WeightPlateSize.values()){
+            int amountOfWeightsToGrab = weight.get(weightSize);
+            for(int amountOfGrabbedWeights = 0; 
+                amountOfGrabbedWeights < amountOfWeightsToGrab; 
+                amountOfGrabbedWeights++
+            ){
+                    availableWeights.get(weightSize).release();
+            }
+        }
+    }
+     
 
     public void performExercise(
         HashMap<ApparatusType,Semaphore> availableApparatuses, 
@@ -66,19 +80,16 @@ public class Exercise{
         Semaphore tryToGrabWeights
     ){
         try{
+            availableApparatuses.get(at).acquire();
             tryToGrabWeights.acquire();
             this.grabWeights(availableWeights);
-        }catch(InterruptedException e){
-            e.printStackTrace();
-        }
-        finally{
-            tryToGrabWeights.release(); 
-        }
-        try{
-            availableApparatuses.get(at).acquire();
+            tryToGrabWeights.release();
             Thread.sleep(duration);
         }catch(InterruptedException e){
             e.printStackTrace();
+        }finally{
+            this.releaseWeights(availableWeights);
+            availableApparatuses.get(at).release();
         }
     }
 }
