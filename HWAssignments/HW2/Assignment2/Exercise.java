@@ -36,12 +36,14 @@ public class Exercise{
         int randomDuration = new Random().nextInt(9)+1;
         return randomDuration;
     }
+
     public static Exercise generateRandom(){
         ApparatusType randomApparatus = pickRandomApparatus();
         HashMap<WeightPlateSize,Integer> weights = pickRandomWeights(); 
         int duration = pickRandomDuration();
         return new Exercise(randomApparatus,weights,duration);
     }
+
     private void grabWeights(
         HashMap<WeightPlateSize,Semaphore> availableWeights
     ){
@@ -59,6 +61,7 @@ public class Exercise{
             }
         }
     }
+
     private void releaseWeights(
         HashMap<WeightPlateSize,Semaphore> availableWeights
     ){
@@ -73,7 +76,6 @@ public class Exercise{
         }
     }
      
-
     public void performExercise(
         HashMap<ApparatusType,Semaphore> availableApparatuses, 
         HashMap<WeightPlateSize,Semaphore> availableWeights, 
