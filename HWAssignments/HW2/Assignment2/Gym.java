@@ -15,7 +15,7 @@ public class Gym implements Runnable{
     private HashSet<Integer> clients;
     private HashMap<WeightPlateSize,Semaphore> availableWeights;
     private HashMap<ApparatusType,Semaphore> availableApparatuses;
-    private Semaphore grabWeights = new Semaphore(1);
+    private Semaphore tryToGrabWeights = new Semaphore(1);
     
     private void populateAvailableWeightsMap(){
         this.availableWeights = new HashMap<WeightPlateSize,Semaphore>();
@@ -47,7 +47,7 @@ public class Gym implements Runnable{
             Client client = Client.generateRandom(i);
             executorService.execute(new Runnable() {
                 public void run(){
-                    client.executeRoutine();
+                    client.executeRoutine(availableApparatuses,availableWeights,tryToGrabWeights);
                 }
             });
         }

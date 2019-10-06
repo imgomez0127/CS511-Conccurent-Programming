@@ -14,6 +14,7 @@ public class Client{
 
     Client(int id){
         this.id = id;
+        this.routine = new ArrayList<Exercise>();
     }
 
     public void addExercise(Exercise e){
@@ -27,18 +28,19 @@ public class Client{
     }
 
     public void generateRoutine() {
-        for (int i = 0; i < 15; i++) {
-            this.routine.addExercise(Exercise.generateRandom());
+        int routineAmount = new Random().nextInt(5)+15;
+        for (int i = 0; i < routineAmount; i++) {
+            this.addExercise(Exercise.generateRandom());
         }
     }
 
     public void executeRoutine(
-          HashMap<ApparatusType,Semaphore> availableApparatuses,                                          
+          HashMap<ApparatusType,Semaphore> availableApparatuses,
           HashMap<WeightPlateSize,Semaphore> availableWeights, 
           Semaphore tryToGrabWeights 
     ) {
-        for (Exercise i : routine) {
-            i.performExercise(availableApparatuses, availableWeights, tryToGrabWeights);
+        for (Exercise exercise : routine) {
+            exercise.performExercise(availableApparatuses, availableWeights, tryToGrabWeights);
         }
         // This function executes all the exercises in the routine
     }
