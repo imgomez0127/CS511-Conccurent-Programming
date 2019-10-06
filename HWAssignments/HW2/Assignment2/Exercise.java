@@ -27,7 +27,7 @@ public class Exercise{
         WeightPlateSize[] weightPlates = WeightPlateSize.values();
         Random randomNumberGenerator = new Random();
         for(int i = 0; i < weightPlates.length; ++i){
-            int amountOfWeights = randomNumberGenerator.nextInt(10);
+            int amountOfWeights = randomNumberGenerator.nextInt(11);
             excerciseWeights.put(weightPlates[i],amountOfWeights);
         }
         return excerciseWeights;
@@ -94,4 +94,15 @@ public class Exercise{
             availableApparatuses.get(at).release();
         }
     }
+    public String toString(){
+        StringBuilder exerciseDetails = new StringBuilder();
+        exerciseDetails.append("Exercise: ");
+        exerciseDetails.append(at);
+        exerciseDetails.append(", Weights: ");
+        exerciseDetails.append(weight);
+        exerciseDetails.append(", Duration: ");
+        exerciseDetails.append(duration);
+        return exerciseDetails.toString();
+    }
+        
 }

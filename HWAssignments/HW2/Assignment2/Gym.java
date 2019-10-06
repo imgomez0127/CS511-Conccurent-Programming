@@ -3,8 +3,11 @@ package Assignment2;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.*;
+import Assignment2.Client;
 import Assignment2.WeightPlateSize;
 import Assignment2.ApparatusType;
+
 public class Gym implements Runnable{
     public static final int GYM_SIZE = 30;
     public static final int GYM_REGISTERED_CLIENTS = 10000;
@@ -17,13 +20,13 @@ public class Gym implements Runnable{
     private void populateAvailableWeightsMap(){
         this.availableWeights = new HashMap<WeightPlateSize,Semaphore>();
         int weightSizeAmount[] = {110,90,75};
-        int current_weight = 0;
+        int currentWeight = 0;
         for(WeightPlateSize weightSize : WeightPlateSize.values()){
             this.availableWeights.put(
                 weightSize,
-                new Semaphore(weightSizeAmount[current_weight])
+                new Semaphore(weightSizeAmount[currentWeight])
             );
-            current_weight++;
+            currentWeight++;
         }
     }
     private void populateAvailableApparatusesMap(){
@@ -39,5 +42,15 @@ public class Gym implements Runnable{
     }     
 
     public void run(){
+        ExecutorService executorService = Executors.newFixedThreadPool(Gym.GYM_SIZE);
+        for(int i = 1; i < Gym.GYM_REGISTERED_CLIENTS+1; i++){
+            Client client = Client.generateRandom(i);
+            executorService.execute(new Runnable() {
+                public void run(){
+                    client.executeRoutine();
+                }
+            });
+        }
+        executorService.shutdown();
     }
 }
