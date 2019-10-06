@@ -89,7 +89,51 @@ thread Passenger:{
         able_to_allow_boarding.release();
     }
 } 
-
+Q5.
+waitForBlast S(0)
+waitForRinse S(0)
+waitForDry S(0)
+queueBlast S(0)
+queueRinse S(0)
+queueDry
+thread Blast:{
+    while(true){
+        //waits for something to get in
+        queueBlast.acquire();
+        //blast
+        waitForBlast.release(); 
+    }
+}
+thread Rinse:{
+    while(true){
+        //waits for something to get in
+        queueRinse.acquire();
+        //rinse
+        waitForRinse.release();
+    }
+}
+thread Dry:{
+    while(true){
+        //waits for something to get in
+        queueDry.acquire();
+        //waits for something to get in
+        waitForDry.release();
+    }
+}
+thread Car:{
+        //queue up for getting in
+        queueBlast.release();
+        //wait for turn enter and wait for blast 
+        waitForBlast.acquire();
+        //queue up for getting in 
+        queueRinse.acquire();
+        //wait for turn enter and wait for rinse
+        waitForRinse.acquire();
+        //queue up for drying
+        queueDry.acquire();
+        //wait for turn enter and wait for rinse
+        waitForDry.release(); 
+}
 Q8.
 part A.
 Semaphore disableOppositeMovement = new Semaphore(1);

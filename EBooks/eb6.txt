@@ -1,0 +1,94 @@
+E1.
+monitor Counter:{
+    counter = 0;
+    increment(){
+        counter++;
+    }
+}
+E4.
+monitor TWS{
+    int state = 1;
+    condition first,second,third;
+    
+    first(){
+        while(state != 1){
+            first.wait();
+        }
+        state = 2;
+        second.signal();
+    }
+    second(){
+        while(state !=2){
+            second.wait();
+        }
+        state = 3;
+        third.signal()
+    }
+    third(){
+        while(state != 3){
+            third.wait();
+        }
+        state = 1;
+        first.signal()
+    }
+}
+
+EX.5
+
+monitor Barrier(n){
+    int amount_in_barrier = 0 
+    condition wait_bitch
+    synchronize(){
+        if amount_in_barrier <= n
+            amount_in_barrier++
+            while amount_in_barrier < n-1:
+                wait_bitch.wait()
+            if amount_in_barrier == n-1:
+                for i=0; i < n-1; ++i:
+                    wait_bitch.signal()
+    }
+}
+EX8.
+pizzaShop:
+    largePizza= 0;
+    smallPizza = 0;
+    condition cantGetLargePizza 
+    condition cantGetSmallPizza
+    getLargePizza():
+        while(largePizza == 0 && smallPizza < 2):
+            cantGetLargePizza.wait()
+        if(largePizza == 0):
+            smallPizza -= 2 
+        else:
+            largePizza -= 1
+
+    getSmallPizza():
+        while(smallPizza == 0):
+            cantGetSmallPizza.wait()
+        smallPizza -= 1
+
+    makeSmallPizza():
+        smallPizza++
+        if(smallPizza >= 2):
+            cantGetLargePizza.signal()
+        cantGetSmallPizza.signal()
+
+    makeLargePizza():
+        largePizza++
+        cantGetLargePizza.signal()
+
+EX9.
+speakerRoom:
+    capacity = 50
+    speakerSpeaking = False
+    condition cantEnter
+
+    enterRoom():
+        if speakerSpeaking or capacity == 0:
+            cantEnter.wait()
+        capacity--    
+
+    speakerEnters():
+        if(capacity < 50):
+            speakerSpeaking = True
+         

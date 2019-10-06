@@ -1,0 +1,28 @@
+"I pledge my honor that I have abided by the stevens honor system" - igomez1 gung
+
+//declarations
+Semaphore []  permToProcess = {new Semaphore (0), new Semaphore (0), new Semaphore (0)};
+Semaphore []  doneProcessing = { new Semaphore (0),new Semaphore (0),new Semaphore (0)};
+
+thread Car:{
+    //queue up for getting in to blast
+    permToProcess[0].release();
+    //wait for turn. enter. wait for blast
+    doneProcessing[0].acquire();
+    //queue up for getting into rinse
+    permToProcess[1].release();
+    //wait for turn. enter. wait for rinse
+    doneProcessing[1].acquire();
+    //queue up for getting into dry
+    permToProcess[2].release();
+    //wait for turn. enter. wait for dry
+    doneProcessing[2].acquire();
+}
+
+thread MachineAtStation(i): {
+    while(true) {
+        permToProcess[i].acquire();
+        //process vehicle
+        doneProcessing[i].release();
+    }
+}
