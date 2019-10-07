@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.*;
+import java.util.Random;
 import Assignment2.Client;
 import Assignment2.WeightPlateSize;
 import Assignment2.ApparatusType;
@@ -26,8 +27,9 @@ public class Gym implements Runnable{
 
     private void populateClientsSet(){
         this.clients = new HashSet<Integer>();
-        for(int id = 1; id < GYM_REGISTERED_CLIENTS+1; id++){
-            this.clients.add(id);
+        Random idGenerator = new Random();
+        while(this.clients.size() < Gym.GYM_REGISTERED_CLIENTS){
+            this.clients.add(idGenerator.nextInt(Integer.MAX_VALUE));
         }
     }
 
