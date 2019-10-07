@@ -16,7 +16,14 @@ public class Gym implements Runnable{
     private HashMap<WeightPlateSize,Semaphore> availableWeights;
     private HashMap<ApparatusType,Semaphore> availableApparatuses;
     private Semaphore tryToGrabWeights = new Semaphore(1);
-    
+
+    private void populateClientsSet(){
+        this.clients = new HashSet<Integer>();
+        for(int id = 0; id < GYM_REGISTERED_CLIENTS; id++){
+            this.clients.add(id);
+        }
+    }
+
     private void populateAvailableWeightsMap(){
         this.availableWeights = new HashMap<WeightPlateSize,Semaphore>();
         int weightSizeAmount[] = {110,90,75};
@@ -43,24 +50,19 @@ public class Gym implements Runnable{
         this.noOfWeightPlates.put(WeightPlateSize.LARGE_10KG, 75);
         populateAvailableWeightsMap();
         populateAvailableApparatusesMap();    
+        populateClientsSet();
     }     
 
     public void run(){
         ExecutorService executorService = Executors.newFixedThreadPool(Gym.GYM_SIZE);
-        for(int i = 1; i < Gym.GYM_REGISTERED_CLIENTS+1; i++){
-            Client client = Client.generateRandom(i);
+        for(int id : this.clients){
+            Client client = Client.generateRandom(id);
+            System.out.println("Client " + id + " Routine:" + client.getRoutine().toString());
             executorService.execute(new Runnable() {
                 public void run(){
                     client.executeRoutine(availableApparatuses,availableWeights,tryToGrabWeights);
                 }
             });
-            StringBuilder gymState = new StringBuilder();
-            gymState.append(noOfWeightPlates.toString());
-            // gymState.append(clients.toString());
-            gymState.append(availableWeights.toString());
-            gymState.append(availableApparatuses.toString());
-            gymState.append(tryToGrabWeights.toString());
-            System.out.println(gymState.toString());
         }
         executorService.shutdown();
     }

@@ -75,7 +75,24 @@ public class Exercise{
             }
         }
     }
-     
+    private void printCurrentlyExecutingExercise(int clientId){     
+            StringBuilder doExercise = new StringBuilder();
+            doExercise.append("Client ");
+            doExercise.append(clientId);
+            doExercise.append(" is doing ");
+            doExercise.append(this.toString());
+            System.out.println(doExercise.toString());
+    }
+
+    private void printCompletedExercise(int clientId){
+            StringBuilder doneExercise = new StringBuilder();
+            doneExercise.append("Client ");
+            doneExercise.append(clientId);
+            doneExercise.append(" is finished doing ");
+            doneExercise.append(this.toString());
+            System.out.println(doneExercise.toString());
+    }
+       
     public void performExercise(
         HashMap<ApparatusType,Semaphore> availableApparatuses, 
         HashMap<WeightPlateSize,Semaphore> availableWeights, 
@@ -87,25 +104,14 @@ public class Exercise{
             tryToGrabWeights.acquire();
             this.grabWeights(availableWeights);
             tryToGrabWeights.release();
-            StringBuilder doExercise = new StringBuilder();
-            doExercise.append("Client ");
-            doExercise.append(clientId);
-            doExercise.append(" is doing ");
-            doExercise.append(this.toString());
-            System.out.println(doExercise.toString());
+            printCurrentlyExecutingExercise(clientId);
             Thread.sleep(duration);
         }catch(InterruptedException e){
             e.printStackTrace();
         }finally{
             this.releaseWeights(availableWeights);
             availableApparatuses.get(at).release();
-            
-            StringBuilder doneExercise = new StringBuilder();
-            doneExercise.append("Client ");
-            doneExercise.append(clientId);
-            doneExercise.append(" is finished doing ");
-            doneExercise.append(this.toString());
-            System.out.println(doneExercise.toString());
+            printCompletedExercise(clientId);
         }
     }
     public String toString(){

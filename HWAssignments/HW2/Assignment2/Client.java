@@ -17,6 +17,10 @@ public class Client{
         this.routine = new ArrayList<Exercise>();
     }
 
+    public ArrayList<Exercise> getRoutine(){
+        return this.routine;
+    }    
+
     public void addExercise(Exercise e){
         this.routine.add(e);
     }
