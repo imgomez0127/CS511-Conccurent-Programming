@@ -79,19 +79,33 @@ public class Exercise{
     public void performExercise(
         HashMap<ApparatusType,Semaphore> availableApparatuses, 
         HashMap<WeightPlateSize,Semaphore> availableWeights, 
-        Semaphore tryToGrabWeights
+        Semaphore tryToGrabWeights,
+        int clientId
     ){
         try{
             availableApparatuses.get(at).acquire();
             tryToGrabWeights.acquire();
             this.grabWeights(availableWeights);
             tryToGrabWeights.release();
+            StringBuilder doExercise = new StringBuilder();
+            doExercise.append("Client ");
+            doExercise.append(clientId);
+            doExercise.append(" is doing ");
+            doExercise.append(this.toString());
+            System.out.println(doExercise.toString());
             Thread.sleep(duration);
         }catch(InterruptedException e){
             e.printStackTrace();
         }finally{
             this.releaseWeights(availableWeights);
             availableApparatuses.get(at).release();
+            
+            StringBuilder doneExercise = new StringBuilder();
+            doneExercise.append("Client ");
+            doneExercise.append(clientId);
+            doneExercise.append(" is finished doing ");
+            doneExercise.append(this.toString());
+            System.out.println(doneExercise.toString());
         }
     }
     public String toString(){

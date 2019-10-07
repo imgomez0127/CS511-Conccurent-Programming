@@ -40,7 +40,7 @@ public class Client{
           Semaphore tryToGrabWeights 
     ) {
         for (Exercise exercise : routine) {
-            exercise.performExercise(availableApparatuses, availableWeights, tryToGrabWeights);
+            exercise.performExercise(availableApparatuses, availableWeights, tryToGrabWeights, this.id);
         }
         // This function executes all the exercises in the routine
     }

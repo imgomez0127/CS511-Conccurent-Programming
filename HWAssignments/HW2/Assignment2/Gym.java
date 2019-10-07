@@ -37,6 +37,10 @@ public class Gym implements Runnable{
     }
         
     Gym(){
+        this.noOfWeightPlates = new HashMap<WeightPlateSize,Integer>();
+        this.noOfWeightPlates.put(WeightPlateSize.SMALL_3KG, 110);
+        this.noOfWeightPlates.put(WeightPlateSize.MEDIUM_5KG, 90);
+        this.noOfWeightPlates.put(WeightPlateSize.LARGE_10KG, 75);
         populateAvailableWeightsMap();
         populateAvailableApparatusesMap();    
     }     
@@ -50,6 +54,13 @@ public class Gym implements Runnable{
                     client.executeRoutine(availableApparatuses,availableWeights,tryToGrabWeights);
                 }
             });
+            StringBuilder gymState = new StringBuilder();
+            gymState.append(noOfWeightPlates.toString());
+            // gymState.append(clients.toString());
+            gymState.append(availableWeights.toString());
+            gymState.append(availableApparatuses.toString());
+            gymState.append(tryToGrabWeights.toString());
+            System.out.println(gymState.toString());
         }
         executorService.shutdown();
     }
