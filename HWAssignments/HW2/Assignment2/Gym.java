@@ -6,8 +6,9 @@
 
 package Assignment2;
 
-import java.util.HashMap;
+import java.util.HashMap; 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.*;
 import Assignment2.Client;
@@ -25,29 +26,12 @@ public class Gym implements Runnable{
 
     private void populateClientsSet(){
         this.clients = new HashSet<Integer>();
-        for(int id = 0; id < GYM_REGISTERED_CLIENTS; id++){
+        for(int id = 1; id < GYM_REGISTERED_CLIENTS+1; id++){
             this.clients.add(id);
         }
     }
 
-    private void populateAvailableWeights(){
-        this.availableWeights = new HashMap<WeightPlateSize,Semaphore>();
-        int weightSizeAmount[] = {110,90,75};
-        int currentWeight = 0;
-        for(WeightPlateSize weightSize : WeightPlateSize.values()){
-            this.availableWeights.put(
-                weightSize,
-                new Semaphore(weightSizeAmount[currentWeight])
-            );
-            currentWeight++;
-        }
-    }
-    private void populateAvailableApparatuses(){
-        this.availableApparatuses = new HashMap<ApparatusType,Semaphore>();
-        for(ApparatusType apparatus:ApparatusType.values()){
-            this.availableApparatuses.put(apparatus,new Semaphore(5));
-        }
-    }
+
     private void populateNoOfWeightsPlates(){
         this.noOfWeightPlates = new HashMap<WeightPlateSize,Integer>();
         this.noOfWeightPlates.put(WeightPlateSize.SMALL_3KG, 110);
@@ -55,10 +39,28 @@ public class Gym implements Runnable{
         this.noOfWeightPlates.put(WeightPlateSize.LARGE_10KG, 75);
     }
    
-    Gym(){
-        populateAvailableWeights();
-        populateAvailableApparatuses();    
+     private void populateAvailableWeights(){
+        this.availableWeights = new HashMap<WeightPlateSize,Semaphore>();
+        for(Map.Entry<WeightPlateSize,Integer> weightAndAmount : this.noOfWeightPlates.entrySet()){
+            this.availableWeights.put(
+                weightAndAmount.getKey(),
+                new Semaphore(weightAndAmount.getValue())
+            );
+        }
+    }
+
+    private void populateAvailableApparatuses(){
+        this.availableApparatuses = new HashMap<ApparatusType,Semaphore>();
+        for(ApparatusType apparatus:ApparatusType.values()){
+            this.availableApparatuses.put(apparatus,new Semaphore(5));
+        }
+    }
+
+   Gym(){
+
         populateNoOfWeightsPlates();
+        populateAvailableApparatuses();    
+        populateAvailableWeights();
         populateClientsSet();
     }     
 
