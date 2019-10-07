@@ -41,3 +41,19 @@ thread writer:{
 }
 
 do the same thing for reader but use mutexreader
+
+Message Passing model
+Erlang
+    has ints strings(list of chars) lists, atoms (like lisp)A
+    tuples designated by {}
+    all statements must be ended with a . as opposed to a semicolon
+    == equals
+    =:= type based equal (no type coercion)
+    4 == 4.0 
+    4 =:= 4.0
+    lists [1,2,3].
+    concat list [1,2]++[3,4].
+    prepend single element [ 1 | [1,2,3]].
+    lists:seq(1,10).
+    list comprehension[{x,y} | X <- lists:seq(1,10) , Y <- lists:seq(10,20)]
+
