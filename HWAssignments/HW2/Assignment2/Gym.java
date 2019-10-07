@@ -30,7 +30,7 @@ public class Gym implements Runnable{
         }
     }
 
-    private void populateAvailableWeightsMap(){
+    private void populateAvailableWeights(){
         this.availableWeights = new HashMap<WeightPlateSize,Semaphore>();
         int weightSizeAmount[] = {110,90,75};
         int currentWeight = 0;
@@ -42,20 +42,23 @@ public class Gym implements Runnable{
             currentWeight++;
         }
     }
-    private void populateAvailableApparatusesMap(){
+    private void populateAvailableApparatuses(){
         this.availableApparatuses = new HashMap<ApparatusType,Semaphore>();
         for(ApparatusType apparatus:ApparatusType.values()){
             this.availableApparatuses.put(apparatus,new Semaphore(5));
         }
     }
-        
-    Gym(){
+    private void populateNoOfWeightsPlates(){
         this.noOfWeightPlates = new HashMap<WeightPlateSize,Integer>();
         this.noOfWeightPlates.put(WeightPlateSize.SMALL_3KG, 110);
         this.noOfWeightPlates.put(WeightPlateSize.MEDIUM_5KG, 90);
         this.noOfWeightPlates.put(WeightPlateSize.LARGE_10KG, 75);
-        populateAvailableWeightsMap();
-        populateAvailableApparatusesMap();    
+    }
+   
+    Gym(){
+        populateAvailableWeights();
+        populateAvailableApparatuses();    
+        populateNoOfWeightsPlates();
         populateClientsSet();
     }     
 
