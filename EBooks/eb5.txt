@@ -47,47 +47,34 @@ thread Woman:{
 
 Q3.
 //Assuming capacity N = 5 
-Semaphore able_to_board = new Semaphore(0);
-Semaphore able_to_depart = new Semaphore(0);
-Semaphore able_to_unboard = new Semaphore(0);
-Semaphore able_to_allow_boarding = new Semaphore(0);
+Semaphore[] able_to_board = [new Semaphore(0),newSemaphore(0)];
+Semaphore[] able_to_depart = [new Semaphore(0), new Semaphore(0)];
+Semaphore[] able_to_unboard = [new Semaphore(0). new Semaphore(0)];
+Semaphore[] able_to_allow_boarding = [new Semaphore(0), new Semaphore(0)];
 thread Boat:{
+    coast = 0
     while(true){
         //allow 5 ppl to board
-        able_to_board.release();
-        able_to_board.release();
-        able_to_board.release();
-        able_to_board.release();
-        able_to_board.release();
+        for i in range(N):
+            able_to_board[coast].release();
         //wait for all 5 to board
-        able_to_depart.acquire(); 
-        able_to_depart.acquire();
-        able_to_depart.acquire();
-        able_to_depart.acquire();
-        able_to_depart.acquire();
+        for i in range(N):
+            able_to_depart[coast].acquire(); 
         //allow 5 ppl to unboard
-        able_to_unboard.release();
-        able_to_unboard.release();
-        able_to_unboard.release();
-        able_to_unboard.release();
-        able_to_unboard.release();
+        for i in range(N)
+            able_to_unboard[coast].release();
         //wait for all 5 to board
-        able_to_allow_boarding.acquire(); 
-        able_to_allow_boarding.acquire(); 
-        able_to_allow_boarding.acquire(); 
-        able_to_allow_boarding.acquire(); 
-        able_to_allow_boarding.acquire(); 
-
+        for i in range(N):
+            able_to_allow_boarding[coast].acquire(); 
+        coast = 1 - coast
     }
 }
 //assume multiple passengers are instantiated
-thread Passenger:{
-    while(true){
-        able_to_board.acquire();
-        able_to_depart.release();
-        able_to_unboard.acquire();
-        able_to_allow_boarding.release();
-    }
+thread Passenger(i):{
+        able_to_board[i].acquire();
+        able_to_depart[i].release();
+        able_to_unboard[i].acquire();
+        able_to_allow_boarding[i].release();
 } 
 Q5.
 waitForBlast S(0)
