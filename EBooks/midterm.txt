@@ -1,0 +1,83 @@
+These are my solutions to the practice midterm posted on canvas
+
+1.
+State Representation: (Program Counter P, Program Counter Q, n)
+(I am hardwiring thread Q to start on line 4 so that we can save some extra steps however if i were to add them id run line 2 and 3 of Q and then the answer would be the same)
+(2,4,3)->(3,4,3)->(3,5,3)->(3,4,4)->(3,5,4)->(3,-,5)->(-,-,3)
+
+2.
+Semaphore ableToRefill = new Semaphore(1);
+Semaphore ableToGetDrinks = new Semaphore(2);
+thread Client:{
+    ableToGetDrinks.acquire();
+    //Fill the cup 
+    ableToGetDrinks.release();
+}
+
+thread Employee:{
+    while(True){
+        ableToRefill.acquire();
+        ableToGetDrinks.acquire();
+        ableToGetDrinks.acquire();
+        //refill this bitch up
+        ableToRefill.release();
+        ableToGetDrinks.release();
+        ableToGetDrinks.release();
+        Thread.sleep(new Random().nextInt(100)) 
+    }
+}
+
+3.
+pt1.
+monitor Buffer {
+    private LinkedList data = new LinkedList();
+    condition ableToRead = new Condition();
+    
+    public void write(Object o){
+        data.addFirst(o);
+        ableToRead.signal()
+    }
+
+    public Object read(){
+        while(data.isEmpty()){
+           ableToRead.wait();
+        } 
+        Object ret_val = data.getLast();
+        data.removeLast();
+        return ret_val;
+    }
+}
+
+pt2.
+monitor Buffer{
+    private LinkedList data = new LinkedList();
+    condition ableToRead = new Condition();
+    writingEnabled = true; 
+    condition ableToWrite = new Condition();
+
+    public void write(Object o){
+        while(!writingEnabled){
+            ableToWrite.wait();
+        }
+        data.addFirst(o);
+        ableToRead.signal()
+    }
+
+    public Object read(){
+        while(data.isEmpty()){
+           ableToRead.wait();
+        } 
+        Object ret_val = data.getLast();
+        data.removeLast();
+        return ret_val;
+    }
+    
+    public void disableWrite(){
+        writingEnabled = false;
+    }
+    
+    public void enableWrite(){
+        writingEnabled = true;
+        ableToWrite.signalAll();
+    } 
+}
