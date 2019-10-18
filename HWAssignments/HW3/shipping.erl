@@ -21,8 +21,7 @@ get_container(Shipping_State, Container_ID) ->
 get_port(Shipping_State, Port_ID) ->
     {value,PORT} = lists:keysearch(
         Port_ID,
-        #port.id,
-        Shipping_State#shipping_state.ports
+        #port.id, Shipping_State#shipping_state.ports
     ),
     PORT.
     
@@ -59,7 +58,10 @@ get_container_weight(Shipping_State, Container_IDs) ->
 get_ship_weight(Shipping_State, Ship_ID) ->
     get_container_weight(
         Shipping_State,
-        maps:get(Shipping_State#shipping_state.ship_inventory,Ship_ID)
+        maps:get(
+            Ship_ID,
+            Shipping_State#shipping_state.ship_inventory
+        )
     ).
 
 load_ship(Shipping_State, Ship_ID, Container_IDs) ->
@@ -95,8 +97,10 @@ print_state(Shipping_State) ->
     _ = print_ships(Shipping_State#shipping_state.ships, Shipping_State#shipping_state.ship_locations, Shipping_State#shipping_state.ship_inventory, Shipping_State#shipping_state.ports),
     io:format("--Ports--~n"),
     _ = print_ports(Shipping_State#shipping_state.ports, Shipping_State#shipping_state.port_inventory).
+
 get_port_helper(Ports,Port_ID)->
-    lists:keysearch(Port_ID,#port.id,Ports).
+    {value,Port} = lists:keysearch(Port_ID,#port.id,Ports),
+    Port.
 
 print_ships(Ships, Locations, Inventory, Ports) ->
     case Ships of
