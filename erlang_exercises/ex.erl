@@ -65,3 +65,39 @@ mirror(T) ->
 
 mapT2(F,T)->
     foldT(fun(X,AL,AR) -> {node,F(X),AL,AR} end, {empty}, T).
+
+-record(inh,{name,children}).
+
+theRegistry() ->
+    M = maps:new(),
+    M1 = maps:put(1,#inh{name="Tom",children=[5,6]},M),
+    M2 = maps:put(2,#inh{name="Sue",children=[5]},M1),
+    M3 = maps:put(3,#inh{name="Anne",children=[6]},M2),
+    M4 = maps:put(4,#inh{name="Jill",children=[]},M3), 
+    M5 = maps:put(5,#inh{name="Robert",children=[]},M4),
+    maps:put(6,#inh{name="Susan",children=[]},M5).
+
+nameOf(ID,TownR) ->
+    (maps:get(ID,TownR))#inh.name.
+
+nameOfChildren(ID,TownR) ->
+    lists:map(
+        fun(ChildID) -> (maps:get(ChildID,TownR))#inh.name end, 
+        (maps:get(ID,TownR))#inh.children).
+
+descendentsOf(ID,TownR) ->
+    All_Descendents = [],
+    lists:foldr(fun(Descendents) ->
+        Next_To_Traverse = queue:new(),
+        map(
+            fun(Descendent) -> 
+                Parent = queue:get(Next_To_Traverse),
+                Next_To_Traverse = queue:drop(Next_To_Traverse),
+                All_Descendents = All_Descendents ++ (maps:get(ID,TownR))#inh.children,
+                Next_To_Traverse = queue:join(
+                    Next_To_Traverse,
+                    queue:from_list(((maps:get(ID,TownR))#inh.children)))
+            end,
+            Descendents
+        ),
+    All_Descendents.

@@ -44,10 +44,34 @@ monitor Barrier(n){
             while amount_in_barrier < n-1:
                 wait_bitch.wait()
             if amount_in_barrier == n-1:
-                for i=0; i < n-1; ++i:
-                    wait_bitch.signal()
+                    wait_bitch.signalAll()
     }
 }
+EX7.
+monitor City:
+    amt_of_producers = 0
+    amt_of_consumers = 0 
+    cant_consume = condition()
+    cant_stop_producing = condition()
+
+    def startConsuming():
+        while ((amt_of_consumers+1) < amt_of_producers):
+            cant_consume.wait()
+        amt_of_consumers += 1
+        
+    def stopConsuming():
+        amt_of_consumers -= 1
+        cant_consume.signal()
+        cant_stop_producing.signal()
+
+    def startProducing():
+        amt_of_producers += 1
+        cant_consume.signal()
+    
+    def stopProducing():
+        while(amt_of_producers == amt_of_consumers):
+            cant_stop_producing.wait()
+        amt_of_producers -= 1
 EX8.
 pizzaShop:
     largePizza= 0;

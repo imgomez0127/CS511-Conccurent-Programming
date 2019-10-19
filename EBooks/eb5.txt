@@ -80,9 +80,12 @@ Q5.
 waitForBlast S(0)
 waitForRinse S(0)
 waitForDry S(0)
+doBlast S(0,true)
+doRinse S(0,true)
+doDry S(0,true)
 queueBlast S(0)
 queueRinse S(0)
-queueDry
+queueDry S(0)
 thread Blast:{
     while(true){
         //waits for something to get in
@@ -120,6 +123,30 @@ thread Car:{
         queueDry.acquire();
         //wait for turn enter and wait for rinse
         waitForDry.release(); 
+}
+Q6.
+availableBeds = S(4)
+availableMagazines = S(10)
+mutex = S(1)
+mutex2 = S(1)
+bedsAvailable = 4
+thread acquireBed:{
+    mutex.acquire()
+        availableBeds.acquire();
+        bedsAvailable--
+    mutex.release()
+    Thread.sleep(random.randint(10))
+    mutex2.acquire()
+        availabledBeds.release();
+        bedsAvailable++
+    mutex2.release()
+}
+thread acquireMagazine:{
+    while(bedsAvailable == 0){
+        availableMagazines.acquire()
+        //read
+        availableMagazines.release()
+    }
 }
 Q8.
 part A.

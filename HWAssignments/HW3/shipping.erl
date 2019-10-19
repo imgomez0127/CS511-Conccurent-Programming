@@ -21,7 +21,8 @@ get_container(Shipping_State, Container_ID) ->
 get_port(Shipping_State, Port_ID) ->
     {value,PORT} = lists:keysearch(
         Port_ID,
-        #port.id, Shipping_State#shipping_state.ports
+        #port.id, 
+        Shipping_State#shipping_state.ports
     ),
     PORT.
     
