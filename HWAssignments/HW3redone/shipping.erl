@@ -1,6 +1,7 @@
 -module(shipping).
 -compile(export_all).
 -include_lib("./shipping.hrl").
+
 mem(_X,[]) ->
     false;
 mem(X,[H|_T]) when X =:= H ->
@@ -23,13 +24,12 @@ difference([H|T],Lst2)  ->
         false -> [H|difference(T,Lst2)]
     end.
 
-get_state(Shipping_State) -> {ok,State} = Shipping_State,State.
 
 get_ship(Shipping_State, Ship_ID) ->
     {value,SHIP} = lists:keysearch(
         Ship_ID,
         #ship.id,
-        (get_state(Shipping_State))#shipping_state.ships
+        (Shipping_State)#shipping_state.ships
     ),
     SHIP.
 
@@ -37,7 +37,7 @@ get_container(Shipping_State, Container_ID) ->
     {value,CONTAINER} = lists:keysearch(
         Container_ID,
         #container.id,
-        (get_state(Shipping_State))#shipping_state.containers
+        (Shipping_State)#shipping_state.containers
     ),
     CONTAINER.
 
@@ -45,7 +45,7 @@ get_port(Shipping_State, Port_ID) ->
     {value,PORT} = lists:keysearch(
         Port_ID,
         #port.id, 
-        (get_state(Shipping_State))#shipping_state.ports
+        (Shipping_State)#shipping_state.ports
     ),
     PORT.
     
@@ -57,7 +57,7 @@ get_occupied_docks(Shipping_State, Port_ID) ->
                         _ -> false
                     end
                 end,
-    (get_state(Shipping_State))#shipping_state.ship_locations).
+    (Shipping_State)#shipping_state.ship_locations).
 
 get_ship_location(Shipping_State, Ship_ID) ->
      [H] = lists:filtermap(fun(Shipping_Location) -> 
@@ -67,29 +67,29 @@ get_ship_location(Shipping_State, Ship_ID) ->
                         _ -> false
                     end
                 end,
-    (get_state(Shipping_State))#shipping_state.ship_locations),
+    (Shipping_State)#shipping_state.ship_locations),
     H.
    
 
 get_container_weight(Shipping_State, Container_IDs) ->
     lists:foldr(
         fun(ID,Acc) -> 
-            Acc + (get_container((get_state(Shipping_State)),ID))#container.weight end, 
+            Acc + (get_container((Shipping_State),ID))#container.weight end, 
         0, 
         Container_IDs
     ).
 
 get_ship_weight(Shipping_State, Ship_ID) ->
     get_container_weight(
-        (get_state(Shipping_State)),
+        (Shipping_State),
         maps:get(
             Ship_ID,
-            (get_state(Shipping_State))#shipping_state.ship_inventory
+            (Shipping_State)#shipping_state.ship_inventory
         )
     ).
     
 load_containers(Shipping_State, Ship_ID, Containers) ->
-    {Location,_Dock} = get_ship_location({ok,Shipping_State},Ship_ID),
+    {Location,_Dock} = get_ship_location(Shipping_State,Ship_ID),
     {ok, 
         #shipping_state{
             ships=Shipping_State#shipping_state.ships, 
@@ -102,11 +102,11 @@ load_containers(Shipping_State, Ship_ID, Containers) ->
     }.
 
 is_valid_container_amount(Shipping_State, Ship_ID, Containers) ->
-    (get_ship({ok,Shipping_State},Ship_ID))#ship.container_cap - length(maps:get(Ship_ID,Shipping_State#shipping_state.ship_inventory)) - length(Containers) >= 0.
+    (get_ship(Shipping_State,Ship_ID))#ship.container_cap - length(maps:get(Ship_ID,Shipping_State#shipping_state.ship_inventory)) - length(Containers) >= 0.
 
 containers_have_valid_dock(Shipping_State,Ship_ID,Containers) ->
 
-    {Location,_Dock} = get_ship_location({ok,Shipping_State},Ship_ID),
+    {Location,_Dock} = get_ship_location(Shipping_State,Ship_ID),
     sublist(
             Containers,
             maps:get(
@@ -125,8 +125,8 @@ check_if_able_to_add_containers(Shipping_State, Ship_ID, Containers) ->
     end.
 
 load_ship(Shipping_State, Ship_ID, Container_IDs) ->
-    case check_if_able_to_add_containers(get_state(Shipping_State), Ship_ID, Container_IDs) of  
-        true -> load_containers(get_state(Shipping_State), Ship_ID,Container_IDs);
+    case check_if_able_to_add_containers(Shipping_State, Ship_ID, Container_IDs) of  
+        true -> load_containers(Shipping_State, Ship_ID,Container_IDs);
         false -> error
     end.
 
@@ -160,9 +160,12 @@ print_state(Shipping_State) ->
     io:format("--Ports--~n"),
     _ = print_ports(Shipping_State#shipping_state.ports, Shipping_State#shipping_state.port_inventory).
 
+
+%% helper function for print_ships
 get_port_helper([], _Port_ID) -> error;
 get_port_helper([ Port = #port{id = Port_ID} | _ ], Port_ID) -> Port;
 get_port_helper( [_ | Other_Ports ], Port_ID) -> get_port_helper(Other_Ports, Port_ID).
+
 
 print_ships(Ships, Locations, Inventory, Ports) ->
     case Ships of
