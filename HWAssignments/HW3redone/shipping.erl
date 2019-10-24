@@ -2,52 +2,27 @@
 -compile(export_all).
 -include_lib("./shipping.hrl").
 
-mem(_X,[]) ->
-    false;
-mem(X,[H|_T]) when X =:= H ->
-    true;
-
-mem(X,[_|T]) ->
-    mem(X,T).
-
-sublist([],_) ->
-    true;
-
-sublist([H1|T1],LST2) ->
-    mem(H1,LST2) and sublist(T1,LST2).
-
-difference([],_)->
-    [];
-difference([H|T],Lst2)  ->
-    case mem(H,Lst2) of
-        true -> difference(T,Lst2);
-        false -> [H|difference(T,Lst2)]
+keysearch(Search_term, Search_value, Lst)->
+    case lists:keysearch(Search_term, Search_value, Lst) of
+        {value,Result} -> Result;
+        false -> error
     end.
-
-
 get_ship(Shipping_State, Ship_ID) ->
-    {value,SHIP} = lists:keysearch(
-        Ship_ID,
-        #ship.id,
-        (Shipping_State)#shipping_state.ships
-    ),
-    SHIP.
+    keysearch(Ship_ID,#ship.id,(Shipping_State)#shipping_state.ships).
 
 get_container(Shipping_State, Container_ID) ->
-    {value,CONTAINER} = lists:keysearch(
+    keysearch(
         Container_ID,
         #container.id,
         (Shipping_State)#shipping_state.containers
-    ),
-    CONTAINER.
+    ).
 
 get_port(Shipping_State, Port_ID) ->
-    {value,PORT} = lists:keysearch(
+    keysearch(
         Port_ID,
         #port.id, 
         (Shipping_State)#shipping_state.ports
-    ),
-    PORT.
+    ).
     
 get_occupied_docks(Shipping_State, Port_ID) ->
     lists:filtermap(fun(Shipping_Location) -> 
@@ -92,12 +67,20 @@ load_containers(Shipping_State, Ship_ID, Containers) ->
     {Location,_Dock} = get_ship_location(Shipping_State,Ship_ID),
     {ok, 
         #shipping_state{
-            ships=Shipping_State#shipping_state.ships, 
-            containers=Shipping_State#shipping_state.containers, 
-            ports=Shipping_State#shipping_state.ports, 
-            ship_locations=Shipping_State#shipping_state.ship_locations,
-            ship_inventory= maps:get(Ship_ID,Shipping_State#shipping_state.ship_inventory)++Containers,
-            port_inventory= difference(maps:get(Location,Shipping_State#shipping_state.port_inventory),Containers)
+            ships = Shipping_State#shipping_state.ships, 
+            containers = Shipping_State#shipping_state.containers, 
+            ports = Shipping_State#shipping_state.ports, 
+            ship_locations = Shipping_State#shipping_state.ship_locations,
+            ship_inventory = maps:put(
+                Ship_ID,
+                maps:get(Ship_ID,Shipping_State#shipping_state.ship_inventory)++Containers,
+                Shipping_State#shipping_state.ship_inventory
+            ),
+            port_inventory = maps:put(
+                Location,
+                maps:get(Location,Shipping_State#shipping_state.port_inventory)--Containers,
+                Shipping_State#shipping_state.port_inventory
+            )
         }
     }.
 
@@ -105,14 +88,16 @@ is_valid_container_amount(Shipping_State, Ship_ID, Containers) ->
     (get_ship(Shipping_State,Ship_ID))#ship.container_cap - length(maps:get(Ship_ID,Shipping_State#shipping_state.ship_inventory)) - length(Containers) >= 0.
 
 containers_have_valid_dock(Shipping_State,Ship_ID,Containers) ->
-
     {Location,_Dock} = get_ship_location(Shipping_State,Ship_ID),
-    sublist(
-            Containers,
-            maps:get(
+    Port_Inventory = maps:get(
                 Location,
                 Shipping_State#shipping_state.port_inventory
-            )
+            ),
+    lists:foldr(fun(Container, Is_Sublist) ->
+            lists:member(Container, Port_Inventory) and Is_Sublist
+        end,
+        true,
+        Containers
     ).
     
 check_if_able_to_add_containers(Shipping_State, Ship_ID, Containers) ->
@@ -130,23 +115,86 @@ load_ship(Shipping_State, Ship_ID, Container_IDs) ->
         false -> error
     end.
 
-unload_ship_all(Shipping_State, Ship_ID) ->
-    io:format("Implement me!!"),
-    error.
+remove_containers(Shipping_State, Ship_ID, Containers) ->
+    {Location,_Dock} = get_ship_location(Shipping_State,Ship_ID),
+    {ok, 
+        #shipping_state{
+            ships = Shipping_State#shipping_state.ships, 
+            containers = Shipping_State#shipping_state.containers, 
+            ports = Shipping_State#shipping_state.ports, 
+            ship_locations = Shipping_State#shipping_state.ship_locations,
+            ship_inventory = maps:put(
+                Ship_ID,
+                maps:get(Ship_ID,Shipping_State#shipping_state.ship_inventory)--Containers,
+                Shipping_State#shipping_state.ship_inventory
+            ),
+            port_inventory = maps:put(
+                Location,
+                maps:get(Location,Shipping_State#shipping_state.port_inventory)++Containers,
+                Shipping_State#shipping_state.port_inventory
+            )
+        }
+    }.
+   
+check_if_able_to_remove_containers(Shipping_State, Ship_ID, Containers) ->
+    Ship_Inventory = maps:get(Ship_ID,Shipping_State#shipping_state.ship_inventory),
+    lists:foldr(
+        fun(Container, Is_Sublist) ->
+            lists:member(Container, Ship_Inventory) and Is_Sublist
+        end,
+        true,
+        Containers
+    ).
+    
+unload_ship(Shipping_State, Ship_ID, Containers) ->
+    case check_if_able_to_remove_containers(Shipping_State, Ship_ID, Containers) of
+        true -> remove_containers(Shipping_State, Ship_ID, Containers);
+        false -> error
+    end.
 
-unload_ship(Shipping_State, Ship_ID, Container_IDs) ->
-    io:format("Implement me!!"),
-    error.
+unload_ship_all(Shipping_State, Ship_ID) ->
+    unload_ship(
+        Shipping_State, 
+        Ship_ID,
+        maps:get(
+            Ship_ID,
+            Shipping_State#shipping_state.ship_inventory
+        )
+    ).
+
+new_ship_locations(Locations, Ship_ID, {Port_ID, Dock}) ->
+    lists:foldr(
+        fun({Current_Port_ID,Current_Dock,Current_Ship_ID},Ship_Locations) ->
+            case Current_Ship_ID of
+                Ship_ID -> [{Port_ID,Dock,Ship_ID}|Ship_Locations];
+                _ ->[{Current_Port_ID,Current_Dock,Current_Ship_ID}|Ship_Locations]
+            end
+        end,
+        [],
+        Locations
+    ).
 
 set_sail(Shipping_State, Ship_ID, {Port_ID, Dock}) ->
-    io:format("Implement me!!"),
-    error.
+     {ok, 
+        #shipping_state{
+            ships = Shipping_State#shipping_state.ships, 
+            containers = Shipping_State#shipping_state.containers, 
+            ports = Shipping_State#shipping_state.ports, 
+            ship_locations = new_ship_locations(
+                Shipping_State#shipping_state.ship_locations, 
+                Ship_ID, 
+                {Port_ID, Dock}
+            ),
+            ship_inventory = Shipping_State#shipping_state.ship_inventory,
+            port_inventory = Shipping_State#shipping_state.port_inventory
+        }
+    }.
+     
 
 
 
-
-%% Determines whether all of the elements of Sub_List are also elements of Target_List
-%% @returns true is all elements of Sub_List are members of Target_List; false otherwise
+% Determines whether all of the elements of Sub_List are also elements of Target_List
+% @returns true is all elements of Sub_List are members of Target_List; false otherwise
 is_sublist(Target_List, Sub_List) ->
     lists:all(fun (Elem) -> lists:member(Elem, Target_List) end, Sub_List).
 
