@@ -129,7 +129,7 @@ f(N) ->
 
 theRegistry() ->
     M = maps:new(),
-    M1 = maps:put(1,#inh{name="Tom",children=[5,6]},M),
+    M1 = maps:put(1,#inh{name="Tom",children=[1,5,6]},M),
     M2 = maps:put(2,#inh{name="Sue",children=[5]},M1),
     M3 = maps:put(3,#inh{name="Anne",children=[6]},M2),
     M4 = maps:put(4,#inh{name="Jill",children=[]},M3),

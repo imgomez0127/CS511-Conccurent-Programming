@@ -17,18 +17,18 @@ server() ->
 start() ->
     spawn(fun server/0).
     
-client_helper(S) ->
+client_helper(S,Tries) ->
     Ref = make_ref(),
     S!{self(),Ref, rand:uniform(20)},
     receive
-        {S, Ref, gotIt} -> gotIt;
-        {S, Ref, notIt} -> client_helper(S)
+        {S, Ref, gotIt} -> io:format("Client ~p guessed in ~w attempts ~n",[self(),Tries]);
+        {S, Ref, notIt} -> client_helper(S,Tries+1)
     end.
 
 client(S) ->
     Ref = make_ref(),
     S!{self(),Ref,start},
     receive 
-        {S,Ref,New_S} -> client_helper(New_S);
+        {S,Ref,New_S} -> client_helper(New_S,0);
         _ -> error
     end.
