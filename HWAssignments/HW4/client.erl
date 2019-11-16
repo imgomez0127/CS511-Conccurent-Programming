@@ -3,7 +3,6 @@
 -export([main/1, initial_state/2]).
 
 -include_lib("./defs.hrl").
-
 -spec main(_InitialState) -> _.
 -spec listen(_State) -> _.
 -spec initial_state(_Nick, _GuiName) -> _InitialClientState.
@@ -80,7 +79,7 @@ loop(State, Request, Ref) ->
 
 	%% GUI requests the nickname of client
 	whoami ->
-	    {{dummy_target, dummy_response}, State};
+	    {State#cl_st.nick, State};
 
 	%% GUI requests to update nickname to Nick
 	{nick, Nick} ->
