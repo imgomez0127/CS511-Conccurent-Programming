@@ -106,19 +106,25 @@ loop(State, Request, Ref) ->
 
 %% executes `/join` protocol from client perspective
 do_join(State, Ref, ChatName) ->
-    case lists:any(fun(X) -> X = ChatName end, State#cl_st.con_ch) of 
-        true -> whereis(server)!{self(),Ref,join, ChatName},
+    ConCh = State#cl_st.con_ch,
+    case maps:is_key(ChatName,ConCh) of 
+        false -> whereis(server)!{self(),Ref,join, ChatName},
                 receive
-                    {_From, _Ref, connect, History} -> History;
-                    _ -> err
+                    {From, _Ref, connect, History} -> {History,State#cl_st{con_ch=maps:put(ChatName,From,ConCh)}};
+                    _ -> {err,State}
                 end;
-        false -> err
+        true -> {err,State}
     end.
 
 %% executes `/leave` protocol from client perspective
 do_leave(State, Ref, ChatName) ->
-    io:format("client:do_leave(...): IMPLEMENT ME~n"),
-    {{dummy_target, dummy_response}, State}.
+    case maps:find(ChatName, State#cl_st.con_ch) of
+        error -> {err, State};
+        {ok, ChatPID} -> whereis(server)!{self(), Ref, leave, ChatName},
+            receive 
+                {_From, Ref, ack_leave} -> {ok, State#cl_st{con_ch = maps:remove(ChatName, State#cl_st.con_ch)}}
+            end
+    end.
 
 %% executes `/nick` protocol from client perspective
 do_new_nick(State, Ref, NewNick) ->
@@ -127,8 +133,10 @@ do_new_nick(State, Ref, NewNick) ->
 
 %% executes send message protocol from client perspective
 do_msg_send(State, Ref, ChatName, Message) ->
-    io:format("client:do_new_nick(...): IMPLEMENT ME~n"),
-    {{dummy_target, dummy_response}, State}.
+    Chatroom = maps:get(ChatName,State#cl_st.con_ch)
+    Chatroom ! {self(), Ref, message, Message),
+    receive
+        {Chatroom,Ref,ack_msg} -> {{msg_sent,State#cl_st.nick},State}
 
 %% executes new incoming message protocol from client perspective
 do_new_incoming_msg(State, _Ref, CliNick, ChatName, Msg) ->
