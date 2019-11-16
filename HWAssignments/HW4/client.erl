@@ -117,8 +117,13 @@ do_join(State, Ref, ChatName) ->
 
 %% executes `/leave` protocol from client perspective
 do_leave(State, Ref, ChatName) ->
-    io:format("client:do_leave(...): IMPLEMENT ME~n"),
-    {{dummy_target, dummy_response}, State}.
+    case maps:find(ChatName, State#cl_st.con_ch) of
+        error -> {err, State};
+        {ok, ChatPID} -> whereis(server)!{self(), Ref, leave, ChatName},
+            receive 
+                {_From, Ref, ack_leave} -> {ok, State#cl_st{con_ch = maps:remove(ChatName, State#cl_st.con_ch)}}
+            end
+    end.
 
 %% executes `/nick` protocol from client perspective
 do_new_nick(State, Ref, NewNick) ->
