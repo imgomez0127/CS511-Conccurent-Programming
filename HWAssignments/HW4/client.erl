@@ -106,13 +106,14 @@ loop(State, Request, Ref) ->
 
 %% executes `/join` protocol from client perspective
 do_join(State, Ref, ChatName) ->
-    case lists:any(fun(X) -> X = ChatName end, State#cl_st.con_ch) of 
-        true -> whereis(server)!{self(),Ref,join, ChatName},
+    ConCh = State#cl_st.con_ch,
+    case maps:is_key(ChatName,ConCh) of 
+        false -> whereis(server)!{self(),Ref,join, ChatName},
                 receive
-                    {_From, _Ref, connect, History} -> History;
-                    _ -> err
+                    {From, _Ref, connect, History} -> {History,State#cl_st{con_ch=maps:put(ChatName,From,ConCh)}};
+                    _ -> {err,State}
                 end;
-        false -> err
+        true -> {err,State}
     end.
 
 %% executes `/leave` protocol from client perspective
