@@ -133,8 +133,10 @@ do_new_nick(State, Ref, NewNick) ->
 
 %% executes send message protocol from client perspective
 do_msg_send(State, Ref, ChatName, Message) ->
-    io:format("client:do_new_nick(...): IMPLEMENT ME~n"),
-    {{dummy_target, dummy_response}, State}.
+    Chatroom = maps:get(ChatName,State#cl_st.con_ch)
+    Chatroom ! {self(), Ref, message, Message),
+    receive
+        {Chatroom,Ref,ack_msg} -> {{msg_sent,State#cl_st.nick},State}
 
 %% executes new incoming message protocol from client perspective
 do_new_incoming_msg(State, _Ref, CliNick, ChatName, Msg) ->
