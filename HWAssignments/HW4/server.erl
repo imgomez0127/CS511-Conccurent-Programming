@@ -72,7 +72,7 @@ do_join(ChatName, ClientPID, Ref, State) ->
                        State#serv_st{
                         registrations = maps:put(
                             ChatName,
-                            maps:get(ChatName,Registrations) ++ [Nickname],
+                            maps:get(ChatName,Registrations) ++ [ClientPID],
                             Registrations
                         )}
     end.
