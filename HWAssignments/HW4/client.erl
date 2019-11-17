@@ -133,7 +133,7 @@ do_new_nick(State, Ref, NewNick) ->
         false -> whereis(server)!{self(), Ref, nick, NewNick},
             receive
                 {_From, Ref, err_nick_used} ->
-                    {err_nick_sued, State};
+                    {err_nick_used, State};
                 {_From, Ref, ok_nick} ->
                     {ok_nick, State#cl_st{nick = NewNick}}
             end
