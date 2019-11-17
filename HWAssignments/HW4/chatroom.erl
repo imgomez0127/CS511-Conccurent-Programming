@@ -51,8 +51,8 @@ do_unregister(State, ClientPID) ->
 
 %% This function should update the nickname of specified client.
 do_update_nick(State, ClientPID, NewNick) ->
-    case maps:update(ClientPID, NewNick, State#chat_st.registrations) of
-        {badkey, ClientPID} -> State;
+    case catch maps:update(ClientPID, NewNick, State#chat_st.registrations) of
+        {{badkey, ClientPID}, _} -> State;
         X -> State#chat_st{registrations = X}
     end.
 
