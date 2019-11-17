@@ -100,7 +100,7 @@ new_nick_helper(State, Ref, ClientPID, NewNick, ChatroomName) ->
         {ok, ClientPIDs} -> 
             case lists:any(fun(X) -> X == ClientPID end, ClientPIDs) of 
                 true -> case maps:find(ChatroomName, State#serv_st.chatrooms) of 
-                            {ok, ChatroomPID} -> ChatroomPID!{self(), ref, update_nick, ClientPID, NewNick}
+                            {ok, ChatroomPID} -> ChatroomPID!{self(), Ref, update_nick, ClientPID, NewNick}
                         end;
                 false -> pass
             end
