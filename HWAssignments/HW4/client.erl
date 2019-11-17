@@ -128,8 +128,16 @@ do_leave(State, Ref, ChatName) ->
 
 %% executes `/nick` protocol from client perspective
 do_new_nick(State, Ref, NewNick) ->
-    io:format("client:do_new_nick(...): IMPLEMENT ME~n"),
-    {{dummy_target, dummy_response}, State}.
+    case NewNick == State#cl_st.nick of
+        true -> {err_same, State};
+        false -> whereis(server)!{self(), Ref, nick, NewNick},
+            receive
+                {_From, Ref, err_nick_used} ->
+                    {err_nick_sued, State};
+                {_From, Ref, ok_nick} ->
+                    {ok_nick, State#cl_st{nick = NewNick}}
+            end
+    end.
 
 %% executes send message protocol from client perspective
 do_msg_send(State, Ref, ChatName, Message) ->
@@ -146,5 +154,8 @@ do_new_incoming_msg(State, _Ref, CliNick, ChatName, Msg) ->
 
 %% executes quit protocol from client perspective
 do_quit(State, Ref) ->
-    io:format("client:do_new_nick(...): IMPLEMENT ME~n"),
-    {{dummy_target, dummy_response}, State}.
+    whereis(server)!{self(), Ref, quit},
+    receive
+        {_From, Ref, ack_quit} ->
+            {ack_quit, State}
+    end.
