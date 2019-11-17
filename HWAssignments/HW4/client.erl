@@ -120,7 +120,7 @@ do_join(State, Ref, ChatName) ->
 do_leave(State, Ref, ChatName) ->
     case maps:find(ChatName, State#cl_st.con_ch) of
         error -> {err, State};
-        {ok, ChatPID} -> whereis(server)!{self(), Ref, leave, ChatName},
+        {ok, _ChatPID} -> whereis(server)!{self(), Ref, leave, ChatName},
             receive 
                 {_From, Ref, ack_leave} -> {ok, State#cl_st{con_ch = maps:remove(ChatName, State#cl_st.con_ch)}}
             end
@@ -141,10 +141,12 @@ do_new_nick(State, Ref, NewNick) ->
 
 %% executes send message protocol from client perspective
 do_msg_send(State, Ref, ChatName, Message) ->
-    Chatroom = maps:get(ChatName,State#cl_st.con_ch)
-    Chatroom ! {self(), Ref, message, Message),
+    Chatroom = maps:get(ChatName,State#cl_st.con_ch),
+    Chatroom ! {self(), Ref, message, Message},
     receive
-        {Chatroom,Ref,ack_msg} -> {{msg_sent,State#cl_st.nick},State}
+        {Chatroom,Ref,ack_msg} -> {{msg_sent,State#cl_st.nick},State};
+        _ -> {err,State}
+    end.
 
 %% executes new incoming message protocol from client perspective
 do_new_incoming_msg(State, _Ref, CliNick, ChatName, Msg) ->
