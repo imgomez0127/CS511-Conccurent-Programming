@@ -111,5 +111,17 @@ new_nick_helper(State, Ref, ClientPID, NewNick, ChatroomName) ->
 do_client_quit(State, Ref, ClientPID) ->
     NewNicks = maps:remove(ClientPID, State#serv_st.nicks),
     NewRegis = maps:map(fun(X, Y) when is_list(X) -> lists:delete(ClientPID, Y) end, State#serv_st.registrations),
+    lists:map(fun(X) -> quit_helper(State, Ref, ClientPID, X) end, maps:keys(State#serv_st.chatrooms)),
     ClientPID!{self(), Ref, ack_quit},
     State#serv_st{nicks = NewNicks, registrations = NewRegis}.
+
+quit_helper(State, Ref, ClientPID, ChatroomName) ->
+    case maps:find(ChatroomName, State#serv_st.registrations) of 
+        {ok, ClientPIDs} -> 
+            case lists:any(fun(X) -> X == ClientPID end, ClientPIDs) of 
+                true -> case maps:find(ChatroomName, State#serv_st.chatrooms) of 
+                            {ok, ChatroomPID} -> ChatroomPID!{self(), Ref, unregister, ClientPID}
+                        end;
+                false -> pass
+            end
+    end.
