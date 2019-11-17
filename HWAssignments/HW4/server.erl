@@ -89,14 +89,22 @@ do_new_nick(State, Ref, ClientPID, NewNick) ->
     case lists:any(fun(X) -> X == NewNick end, maps:values(State#serv_st.nicks)) of
         true -> ClientPID!{self(), Ref, err_nick_used}, NewState = State;
         false -> NewState = State#serv_st{nicks = maps:update(ClientPID, NewNick, State#serv_st.nicks)},
-            ChatroomPIDs = maps:values(State#serv_st.chatrooms),
-            lists:map(fun(X) -> new_nick_helper(Ref, ClientPID, NewNick, X) end, ChatroomPIDs),
+            ChatroomNames = maps:keys(State#serv_st.chatrooms),
+            lists:map(fun(X) -> new_nick_helper(State, Ref, ClientPID, NewNick, X) end, ChatroomNames),
             ClientPID!{self(), Ref, ok_nick}
     end,
     NewState.
 
-new_nick_helper(Ref, ClientPID, NewNick, ChatroomPID) ->
-    ChatroomPID!{self(), ref, update_nick, ClientPID, NewNick}.
+new_nick_helper(State, Ref, ClientPID, NewNick, ChatroomName) ->
+    case maps:find(ChatroomName, State#serv_st.registrations) of 
+        {ok, ClientPIDs} -> 
+            case lists:any(fun(X) -> X == ClientPID end, ClientPIDs) of 
+                true -> case maps:find(ChatroomName, State#serv_st.chatrooms) of 
+                            {ok, ChatroomPID} -> ChatroomPID!{self(), ref, update_nick, ClientPID, NewNick}
+                        end;
+                false -> pass
+            end
+    end.
 
 
 %% executes client quit protocol from server perspective
