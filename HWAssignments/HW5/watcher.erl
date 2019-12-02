@@ -28,6 +28,5 @@ watcher(Sensors_IDs) ->
         {ID,PID}
     end,
     Sensors_IDs),
-%    Sensors_list = [{ID,PID} || ID <- Sensors_IDs, {PID,_Ref} <- spawn_monitor(sensor,produce_reading,[self(),ID])],
     io:format("Initial List: ~w~n",[Sensors_list]),
     watcher_helper(Sensors_list).
