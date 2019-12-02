@@ -10,7 +10,8 @@ find_id(PID,[_H|T]) ->
 
 watcher_helper(Sensors_list) ->
     receive
-        {ID,Reading} -> io:format("Sensor: ~w, Reading: ~w~n",[ID,Reading]);
+        {ID,Reading} -> io:format("Sensor: ~w, Reading: ~w~n",[ID,Reading]),
+                        SL2 = Sensors_list;
         {_,_,_,PID,Reason} -> 
                             ID = find_id(PID,Sensors_list),
                              io:format("Sensor ~w crashed, Reason: ~w~n",[ID,Reason]),
@@ -19,7 +20,7 @@ watcher_helper(Sensors_list) ->
                              SL2 = [{ID,New_PID}|SL1],
                              io:format("Restarted ~w New List ~w~n",[ID,SL2])
     end,
-    watcher_helper(Sensors_list).
+    watcher_helper(SL2).
 
 watcher(Sensors_IDs) ->
     Sensors_list = lists:map(fun (ID) -> 
@@ -28,5 +29,5 @@ watcher(Sensors_IDs) ->
     end,
     Sensors_IDs),
 %    Sensors_list = [{ID,PID} || ID <- Sensors_IDs, {PID,_Ref} <- spawn_monitor(sensor,produce_reading,[self(),ID])],
-    io:format("~w~n",[Sensors_list]),
+    io:format("Initial List: ~w~n",[Sensors_list]),
     watcher_helper(Sensors_list).
