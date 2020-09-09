@@ -46,11 +46,16 @@ public class TextSwap {
         int intervalDistance = intervals[0].distance();
         for(int i = 0; i < intervals.length; i++){
             int offset = i * intervalDistance;
-            Interval contentInterval = getContentInterval(intervals,
+            Interval contentInterval = getContentInterval(
+                intervals,
                 labels.get(i)
             );
-            swapperThreads[i] = new Thread(new Swapper(contentInterval,content,outputBuffer,
-                offset));
+            swapperThreads[i] = new Thread(new Swapper(
+                contentInterval,
+                content,
+                outputBuffer,
+                offset
+            ));
         }
         return swapperThreads;
     }
